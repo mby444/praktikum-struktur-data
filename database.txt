@@ -1,0 +1,2 @@
+42030|Harry Potter|J. K. Rowling|2001|Fantasy|1
+32120|The Silent Patient|Alex Michaelides|2019|Thriller|1
