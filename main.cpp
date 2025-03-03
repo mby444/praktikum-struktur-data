@@ -228,14 +228,11 @@ string tetapkanIdBuku(string tempId)
             lastChar = tempId[tempId.length() - 1];
             lastChar++;
 
+            tempId[tempId.length() - 1] = lastChar;
+
             if (lastChar == '9')
             {
-                tempId[tempId.length() - 1] = lastChar;
                 tempId += "0";
-            }
-            else
-            {
-                tempId[tempId.length() - 1] = lastChar;
             }
         }
         bantu = bantu->next;
@@ -272,11 +269,6 @@ string buatIdBuku(string &judul, string &tahun)
     }
 
     tempId = firstTwoDigit + secondAndThirdDigit + lastDigit;
-
-    if (tempId[tempId.length() - 1] == '9')
-    {
-        tempId += "0";
-    }
 
     return tetapkanIdBuku(tempId);
 }
@@ -561,14 +553,34 @@ void muatDataKeLinkedList()
     }
 }
 
-void simpanDataKeFile()
+void kosongkanLinkedList()
 {
     if (head == NULL)
     {
         return;
     }
+    Buku *bantu = head;
 
+    do
+    {
+        Buku *hapus = bantu;
+        bantu = bantu->next;
+        delete hapus;
+    } while (bantu != head);
+
+    head = NULL;
+    tail = NULL;
+}
+
+void simpanDataKeFile()
+{
     ofstream file(FILE_DATA);
+
+    if (head == NULL)
+    {
+        return;
+    }
+
     Buku *bantu = head;
 
     do
@@ -576,12 +588,17 @@ void simpanDataKeFile()
         file << bantu->id << "|" << bantu->judul << "|" << bantu->penulis << "|" << bantu->tahun << "|" << bantu->genre << "|" << (bantu->tersedia ? "1" : "0") << endl;
         bantu = bantu->next;
     } while (bantu != head);
+
+    file.close();
 }
 
 void simpanDanKeluar()
 {
+    cout << "Menyimpan data..." << endl;
     simpanDataKeFile();
     cout << "Data berhasil disimpan!" << endl;
+    kosongkanLinkedList();
+    cout << "Linked list berhasil dikosongkan" << endl;
     cout << "Terima kasih telah mengunjungi perpustakaan!" << endl;
 }
 
