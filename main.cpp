@@ -302,6 +302,14 @@ void hapusDariLinkedList(string id)
 {
     Buku *bantu = head;
 
+    if (head == tail && head->id == id)
+    {
+        delete head;
+        head = NULL;
+        tail = NULL;
+        return;
+    }
+
     do
     {
         if (bantu->id == id)
@@ -422,7 +430,10 @@ void tampilkanBuku(bool sebagaiPegawai = true)
             }
             break;
         case 0:
-            cout << "Terima kasih telah mengunjungi perpustakaan!" << endl;
+            if (!sebagaiPegawai)
+            {
+                cout << "Terima kasih telah mengunjungi perpustakaan!" << endl;
+            }
             break;
 
         default:
@@ -541,7 +552,6 @@ void muatDataKeLinkedList()
 {
     ifstream file(FILE_DATA);
     string line;
-    bool tersedia;
 
     // Tambah semua data buku ke linked list
     while (getline(file, line))
