@@ -92,6 +92,12 @@ void outputUbahBuku()
 
 void cetakLinkedList()
 {
+    if (head == NULL)
+    {
+        cout << "Data buku masih kosong!" << endl;
+        return;
+    }
+
     Buku *bantu = head;
 
     do
@@ -543,6 +549,12 @@ void hapusBuku()
 void muatDataKeLinkedList()
 {
     ifstream file(FILE_DATA);
+
+    if (!file.is_open())
+    {
+        return;
+    }
+
     string line;
 
     // Tambah semua data buku ke linked list
