@@ -1,1 +1,4 @@
-42030|Harry Potter|JKR|2001|Fantasy|1
+00000|Harry Potter 2|JKRR|2002|Fantasiii|1
+31180|Bumi Manusia|Pramoedya Ananta Toer|1980|Fiksi|1
+00000|H2r|Jkgr|2001|Fantasi|1
+00000|Jeirgojr|Kgor|2001|Komedi|1
