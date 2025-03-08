@@ -24,14 +24,23 @@ struct Buku
 // Head dari Linked List
 Buku *head = NULL;
 Buku *tail = NULL;
-Buku *tampil = NULL;
+Buku *tampilAdmin = NULL;
+Buku *tampilPengunjung = NULL;
 
 // Elemen tampilan buku
 Buku *bukuDiubah;
-Fl_Box *judulBox, *idBox, *penulisBox, *tahunBox, *genreBox, *tersediaBox;
-Fl_Button *btnPinjam, *btnSelanjutnya, *btnSebelumnya, *btnKembali;
-Fl_Input *judulInput, *penulisInput, *tahunInput, *genreInput;
+Buku *bukuDihapus;
 Fl_Input *idDicariInput;
+
+// Elemen tampilan buku untuk admin
+Fl_Box *judulBoxAdmin, *idBoxAdmin, *penulisBoxAdmin, *tahunBoxAdmin, *genreBoxAdmin, *tersediaBoxAdmin;
+Fl_Button *btnSelanjutnyaAdmin, *btnSebelumnyaAdmin, *btnKembaliAdmin;
+Fl_Input *judulInputAdmin, *penulisInputAdmin, *tahunInputAdmin, *genreInputAdmin;
+
+// Elemen tampilan buku untuk pengunjung
+Fl_Box *judulBoxPengunjung, *idBoxPengunjung, *penulisBoxPengunjung, *tahunBoxPengunjung, *genreBoxPengunjung, *tersediaBoxPengunjung;
+Fl_Button *btnPinjamPengunjung, *btnSelanjutnyaPengunjung, *btnSebelumnyaPengunjung, *btnKembaliPengunjung;
+Fl_Input *judulInputPengunjung, *penulisInputPengunjung, *tahunInputPengunjung, *genreInputPengunjung;
 
 void cetakLinkedList()
 {
@@ -93,17 +102,84 @@ void cetakLinkedList()
     cout << endl;
 }
 
+bool cekNumerik(string input)
+{
+    for (int i = 0; i < input.length(); i++)
+    {
+        if (input[i] > '9' || input[i] < '0')
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+string hapusSpasi(string input)
+{
+    string output = "";
+    for (int i = 0; i < input.length(); i++)
+    {
+        if (input[i] != ' ')
+        {
+            output += input[i];
+        }
+    }
+    return output;
+}
+
+bool cekStringKosong(string input)
+{
+    return hapusSpasi(input).empty();
+}
+
 // **Fungsi Menampilkan Satu Buku**
-void lihatBuku()
+void lihatBukuAdmin(Buku *tampil = NULL)
+{
+    cout << "lihatBukuAdmin 1" << endl;
+    if (!tampil)
+    {
+        cout << "lihatBukuAdmin 2" << endl;
+        judulBoxAdmin->label("Judul: -");
+        idBoxAdmin->label("ID: -");
+        penulisBoxAdmin->label("Penulis: -");
+        tahunBoxAdmin->label("Tahun: -");
+        genreBoxAdmin->label("Genre: -");
+        tersediaBoxAdmin->label("Ketersediaan: -");
+        return;
+    }
+
+    cout << "lihatBukuAdmin 3" << endl;
+
+    string judulLabel = ("Judul: " + tampil->judul);
+    string idLabel = ("ID: " + tampil->id);
+    string penulisLabel = ("Penulis: " + tampil->penulis);
+    string tahunLabel = ("Tahun: " + tampil->tahun);
+    string genreLabel = ("Genre: " + tampil->genre);
+    string tersediaLabel = (tampil->tersedia) ? "Ketersediaan: Tersedia" : "Ketersediaan: Tidak Tersedia";
+
+    cout << "lihatBukuAdmin 4" << endl;
+
+    judulBoxAdmin->copy_label(judulLabel.c_str());
+    idBoxAdmin->copy_label(idLabel.c_str());
+    penulisBoxAdmin->copy_label(penulisLabel.c_str());
+    tahunBoxAdmin->copy_label(tahunLabel.c_str());
+    genreBoxAdmin->copy_label(genreLabel.c_str());
+    tersediaBoxAdmin->copy_label(tersediaLabel.c_str());
+
+    cout << "lihatBukuAdmin 5" << endl;
+}
+
+// **Fungsi Menampilkan Satu Buku**
+void lihatBukuPengunjung(Buku *tampil = NULL)
 {
     if (!tampil)
     {
-        judulBox->label("Judul: -");
-        idBox->label("ID: -");
-        penulisBox->label("Penulis: -");
-        tahunBox->label("Tahun: -");
-        genreBox->label("Genre: -");
-        tersediaBox->label("Ketersediaan: -");
+        judulBoxPengunjung->label("Judul: -");
+        idBoxPengunjung->label("ID: -");
+        penulisBoxPengunjung->label("Penulis: -");
+        tahunBoxPengunjung->label("Tahun: -");
+        genreBoxPengunjung->label("Genre: -");
+        tersediaBoxPengunjung->label("Ketersediaan: -");
         return;
     }
 
@@ -114,42 +190,66 @@ void lihatBuku()
     string genreLabel = ("Genre: " + tampil->genre);
     string tersediaLabel = (tampil->tersedia) ? "Ketersediaan: Tersedia" : "Ketersediaan: Tidak Tersedia";
 
-    judulBox->copy_label(judulLabel.c_str());
-    idBox->copy_label(idLabel.c_str());
-    penulisBox->copy_label(penulisLabel.c_str());
-    tahunBox->copy_label(tahunLabel.c_str());
-    genreBox->copy_label(genreLabel.c_str());
-    tersediaBox->copy_label(tersediaLabel.c_str());
+    judulBoxPengunjung->copy_label(judulLabel.c_str());
+    idBoxPengunjung->copy_label(idLabel.c_str());
+    penulisBoxPengunjung->copy_label(penulisLabel.c_str());
+    tahunBoxPengunjung->copy_label(tahunLabel.c_str());
+    genreBoxPengunjung->copy_label(genreLabel.c_str());
+    tersediaBoxPengunjung->copy_label(tersediaLabel.c_str());
 }
 
 // **Navigasi ke Buku Berikutnya**
-void selanjutnya(Fl_Widget *)
+void selanjutnyaAdmin(Fl_Widget *)
 {
-    if (tampil)
+    cout << "Selanjutnya 1" << endl;
+    if (tampilAdmin)
     {
-        tampil = tampil->next;
+        cout << tampilAdmin->judul << endl;
+        tampilAdmin = tampilAdmin->next;
+        cout << "Selanjutnya 2" << endl;
     }
-    lihatBuku();
+    cout << "Selanjutnya 3" << endl;
+    lihatBukuAdmin(tampilAdmin);
 }
 
 // **Navigasi ke Buku Sebelumnya**
-void sebelumnya(Fl_Widget *)
+void sebelumnyaAdmin(Fl_Widget *)
 {
-    if (tampil)
+    if (tampilAdmin)
     {
-        tampil = tampil->prev;
+        tampilAdmin = tampilAdmin->prev;
     }
-    lihatBuku();
+    lihatBukuAdmin(tampilAdmin);
+}
+
+// **Navigasi ke Buku Berikutnya**
+void selanjutnyaPengunjung(Fl_Widget *)
+{
+    if (tampilPengunjung)
+    {
+        tampilPengunjung = tampilPengunjung->next;
+    }
+    lihatBukuPengunjung(tampilPengunjung);
+}
+
+// **Navigasi ke Buku Sebelumnya**
+void sebelumnyaPengunjung(Fl_Widget *)
+{
+    if (tampilPengunjung)
+    {
+        tampilPengunjung = tampilPengunjung->prev;
+    }
+    lihatBukuPengunjung(tampilPengunjung);
 }
 
 // **Peminjaman Buku (Khusus Pengunjung)**
 void pinjamBuku(Fl_Widget *)
 {
-    if (tampil && tampil->tersedia)
-    {
-        tampil->tersedia = false;
-        lihatBuku();
-    }
+    // if (tampil && tampil->tersedia)
+    // {
+    //     tampil->tersedia = false;
+    //     lihatBuku();
+    // }
 }
 
 // **Menutup Tampilan Buku**
@@ -179,28 +279,28 @@ void showBukuPengunjung(Fl_Widget *)
 {
     Fl_Window *winPengunjung = new Fl_Window(400, 300, "Lihat Buku");
 
-    judulBox = new Fl_Box(50, 20, 300, 30);
-    idBox = new Fl_Box(50, 50, 300, 30);
-    penulisBox = new Fl_Box(50, 80, 300, 30);
-    tahunBox = new Fl_Box(50, 110, 300, 30);
-    genreBox = new Fl_Box(50, 140, 300, 30);
-    tersediaBox = new Fl_Box(50, 170, 300, 30);
+    judulBoxPengunjung = new Fl_Box(50, 20, 300, 30);
+    idBoxPengunjung = new Fl_Box(50, 50, 300, 30);
+    penulisBoxPengunjung = new Fl_Box(50, 80, 300, 30);
+    tahunBoxPengunjung = new Fl_Box(50, 110, 300, 30);
+    genreBoxPengunjung = new Fl_Box(50, 140, 300, 30);
+    tersediaBoxPengunjung = new Fl_Box(50, 170, 300, 30);
 
-    btnSebelumnya = new Fl_Button(50, 210, 100, 30, "Sebelumnya");
-    btnSelanjutnya = new Fl_Button(160, 210, 100, 30, "Selanjutnya");
-    btnPinjam = new Fl_Button(50, 250, 100, 30, "Pinjam");
-    btnKembali = new Fl_Button(160, 250, 100, 30, "Kembali");
+    btnSebelumnyaPengunjung = new Fl_Button(50, 210, 100, 30, "Sebelumnya");
+    btnSelanjutnyaPengunjung = new Fl_Button(160, 210, 100, 30, "Selanjutnya");
+    btnPinjamPengunjung = new Fl_Button(50, 250, 100, 30, "Pinjam");
+    btnKembaliPengunjung = new Fl_Button(160, 250, 100, 30, "Kembali");
 
-    btnSebelumnya->callback(sebelumnya);
-    btnSelanjutnya->callback(selanjutnya);
-    btnPinjam->callback(pinjamBuku);
-    btnKembali->callback(kembali, winPengunjung);
+    btnSebelumnyaPengunjung->callback(sebelumnyaPengunjung);
+    btnSelanjutnyaPengunjung->callback(selanjutnyaPengunjung);
+    btnPinjamPengunjung->callback(pinjamBuku);
+    btnKembaliPengunjung->callback(kembali, winPengunjung);
 
     winPengunjung->end();
     winPengunjung->show();
 
-    tampil = head;
-    lihatBuku();
+    tampilPengunjung = head;
+    lihatBukuPengunjung(tampilPengunjung);
 }
 
 // **Tampilan Pegawai**
@@ -214,26 +314,26 @@ void showBukuAdmin(Fl_Widget *)
         return;
     }
 
-    judulBox = new Fl_Box(50, 20, 300, 30);
-    idBox = new Fl_Box(50, 50, 300, 30);
-    penulisBox = new Fl_Box(50, 80, 300, 30);
-    tahunBox = new Fl_Box(50, 110, 300, 30);
-    genreBox = new Fl_Box(50, 140, 300, 30);
-    tersediaBox = new Fl_Box(50, 170, 300, 30);
+    judulBoxAdmin = new Fl_Box(50, 20, 300, 30);
+    idBoxAdmin = new Fl_Box(50, 50, 300, 30);
+    penulisBoxAdmin = new Fl_Box(50, 80, 300, 30);
+    tahunBoxAdmin = new Fl_Box(50, 110, 300, 30);
+    genreBoxAdmin = new Fl_Box(50, 140, 300, 30);
+    tersediaBoxAdmin = new Fl_Box(50, 170, 300, 30);
 
-    btnSebelumnya = new Fl_Button(50, 210, 100, 30, "Sebelumnya");
-    btnSelanjutnya = new Fl_Button(160, 210, 100, 30, "Selanjutnya");
-    btnKembali = new Fl_Button(160, 250, 100, 30, "Kembali");
+    btnSebelumnyaAdmin = new Fl_Button(50, 210, 100, 30, "Sebelumnya");
+    btnSelanjutnyaAdmin = new Fl_Button(160, 210, 100, 30, "Selanjutnya");
+    btnKembaliAdmin = new Fl_Button(160, 250, 100, 30, "Kembali");
 
-    btnSebelumnya->callback(sebelumnya);
-    btnSelanjutnya->callback(selanjutnya);
-    btnKembali->callback(kembali, winPegawai);
+    btnSebelumnyaAdmin->callback(sebelumnyaAdmin);
+    btnSelanjutnyaAdmin->callback(selanjutnyaAdmin);
+    btnKembaliAdmin->callback(kembali, winPegawai);
 
     winPegawai->end();
     winPegawai->show();
 
-    tampil = head;
-    lihatBuku();
+    tampilAdmin = head;
+    lihatBukuAdmin(tampilAdmin);
 }
 
 Buku *lineKeBuku(string line)
@@ -465,14 +565,20 @@ void hapusDariLinkedList2(Buku *buku)
 
 Buku *buatBukuBaru()
 {
-    string judul = judulInput->value();
-    string penulis = penulisInput->value();
-    string tahun = tahunInput->value();
-    string genre = genreInput->value();
+    string judul = judulInputAdmin->value();
+    string penulis = penulisInputAdmin->value();
+    string tahun = tahunInputAdmin->value();
+    string genre = genreInputAdmin->value();
 
-    if (judul.empty() || penulis.empty() || tahun.empty() || genre.empty())
+    if (cekStringKosong(judul) || cekStringKosong(penulis) || cekStringKosong(tahun) || cekStringKosong(genre))
     {
-        showPopup("Data tidak boleh kosong!");
+        showPopup("Semua data harus diisi!");
+        return NULL;
+    }
+
+    if (!cekNumerik(tahun))
+    {
+        showPopup("Tahun harus berupa angka!");
         return NULL;
     }
 
@@ -508,33 +614,55 @@ void ubah(Fl_Widget *, void *win)
         return;
     }
 
-    if (bukuDiubah->judul.empty() || bukuDiubah->penulis.empty() || bukuDiubah->tahun.empty() || bukuDiubah->genre.empty())
+    if (cekStringKosong(judulInputAdmin->value()) || cekStringKosong(penulisInputAdmin->value()) || cekStringKosong(tahunInputAdmin->value()) || cekStringKosong(genreInputAdmin->value()))
     {
         showPopup("Data tidak boleh kosong!");
         return;
     }
 
-    if (bukuDiubah->judul != judulInput->value() || bukuDiubah->tahun != tahunInput->value())
+    if (!cekNumerik(tahunInputAdmin->value()))
     {
-        bukuDiubah->id = buatIdBuku(judulInput->value(), tahunInput->value());
+        showPopup("Tahun harus berupa angka!");
+        return;
     }
 
-    bukuDiubah->judul = judulInput->value();
-    bukuDiubah->penulis = penulisInput->value();
-    bukuDiubah->tahun = tahunInput->value();
-    bukuDiubah->genre = genreInput->value();
+    if (bukuDiubah->judul != judulInputAdmin->value() || bukuDiubah->tahun != tahunInputAdmin->value())
+    {
+        bukuDiubah->id = buatIdBuku(judulInputAdmin->value(), tahunInputAdmin->value());
+    }
+
+    bukuDiubah->judul = judulInputAdmin->value();
+    bukuDiubah->penulis = penulisInputAdmin->value();
+    bukuDiubah->tahun = tahunInputAdmin->value();
+    bukuDiubah->genre = genreInputAdmin->value();
     ((Fl_Window *)win)->hide();
 }
 
 void hapus(Fl_Widget *, void *win)
 {
-    if (bukuDiubah == NULL)
+    if (bukuDihapus == NULL)
     {
         showPopup("Buku tidak ditemukan!");
         return;
     }
 
-    hapusDariLinkedList2(bukuDiubah);
+    if (tampilAdmin == bukuDihapus)
+    {
+        tampilAdmin = tampilAdmin->next;
+    }
+
+    if (tampilPengunjung == bukuDihapus)
+    {
+        tampilPengunjung = tampilPengunjung->next;
+    }
+
+    hapusDariLinkedList2(bukuDihapus);
+
+    if (head == NULL)
+    {
+        tampilAdmin = NULL;
+        tampilPengunjung = NULL;
+    }
 
     ((Fl_Window *)win)->hide();
 }
@@ -548,10 +676,10 @@ void showTambahBuku(Fl_Widget *)
     Fl_Box *tahunLabel = new Fl_Box(50, 120, 200, 30, "Tahun");
     Fl_Box *genreLabel = new Fl_Box(50, 170, 200, 30, "Genre");
 
-    judulInput = new Fl_Input(50, 50, 200, 30);
-    penulisInput = new Fl_Input(50, 100, 200, 30);
-    tahunInput = new Fl_Input(50, 150, 200, 30);
-    genreInput = new Fl_Input(50, 200, 200, 30);
+    judulInputAdmin = new Fl_Input(50, 50, 200, 30);
+    penulisInputAdmin = new Fl_Input(50, 100, 200, 30);
+    tahunInputAdmin = new Fl_Input(50, 150, 200, 30);
+    genreInputAdmin = new Fl_Input(50, 200, 200, 30);
 
     Fl_Button *btnTambahkan = new Fl_Button(50, 250, 100, 30, "Simpan");
     Fl_Button *btnBatal = new Fl_Button(160, 250, 100, 30, "Kembali");
@@ -579,15 +707,15 @@ void showUbahBuku(Fl_Widget *, void *win)
     Fl_Box *tahunLabel = new Fl_Box(50, 120, 200, 30, "Tahun");
     Fl_Box *genreLabel = new Fl_Box(50, 170, 200, 30, "Genre");
 
-    judulInput = new Fl_Input(50, 50, 200, 30);
-    penulisInput = new Fl_Input(50, 100, 200, 30);
-    tahunInput = new Fl_Input(50, 150, 200, 30);
-    genreInput = new Fl_Input(50, 200, 200, 30);
+    judulInputAdmin = new Fl_Input(50, 50, 200, 30);
+    penulisInputAdmin = new Fl_Input(50, 100, 200, 30);
+    tahunInputAdmin = new Fl_Input(50, 150, 200, 30);
+    genreInputAdmin = new Fl_Input(50, 200, 200, 30);
 
-    judulInput->value(bukuDiubah->judul.c_str());
-    penulisInput->value(bukuDiubah->penulis.c_str());
-    tahunInput->value(bukuDiubah->tahun.c_str());
-    genreInput->value(bukuDiubah->genre.c_str());
+    judulInputAdmin->value(bukuDiubah->judul.c_str());
+    penulisInputAdmin->value(bukuDiubah->penulis.c_str());
+    tahunInputAdmin->value(bukuDiubah->tahun.c_str());
+    genreInputAdmin->value(bukuDiubah->genre.c_str());
 
     Fl_Button *btnUbah = new Fl_Button(50, 250, 100, 30, "Simpan");
     Fl_Button *btnBatal = new Fl_Button(160, 250, 100, 30, "Batal");
@@ -603,20 +731,20 @@ void showUbahBuku(Fl_Widget *, void *win)
 void showHapusBuku(Fl_Widget *, void *win)
 {
     Fl_Window *winUbah = new Fl_Window(300, 300, "Hapus Buku");
-    bukuDiubah = cariBuku(idDicariInput->value());
+    bukuDihapus = cariBuku(idDicariInput->value());
 
-    if (bukuDiubah == NULL)
+    if (bukuDihapus == NULL)
     {
         showPopup("Buku tidak ditemukan!");
         return;
     }
 
-    judulBox = new Fl_Box(50, 20, 300, 30);
-    idBox = new Fl_Box(50, 50, 300, 30);
-    penulisBox = new Fl_Box(50, 80, 300, 30);
-    tahunBox = new Fl_Box(50, 110, 300, 30);
-    genreBox = new Fl_Box(50, 140, 300, 30);
-    tersediaBox = new Fl_Box(50, 170, 300, 30);
+    judulBoxAdmin = new Fl_Box(50, 20, 300, 30);
+    idBoxAdmin = new Fl_Box(50, 50, 300, 30);
+    penulisBoxAdmin = new Fl_Box(50, 80, 300, 30);
+    tahunBoxAdmin = new Fl_Box(50, 110, 300, 30);
+    genreBoxAdmin = new Fl_Box(50, 140, 300, 30);
+    tersediaBoxAdmin = new Fl_Box(50, 170, 300, 30);
 
     Fl_Button *btnUbah = new Fl_Button(50, 250, 100, 30, "Hapus");
     Fl_Button *btnBatal = new Fl_Button(160, 250, 100, 30, "Batal");
@@ -628,8 +756,7 @@ void showHapusBuku(Fl_Widget *, void *win)
     winUbah->show();
     ((Fl_Window *)win)->hide();
 
-    tampil = bukuDiubah;
-    lihatBuku();
+    lihatBukuAdmin(bukuDihapus);
 }
 
 void showInputIdUbahBuku(Fl_Widget *)
@@ -697,8 +824,8 @@ int main()
     muatDataKeLinkedList();
 
     Fl_Window *win = new Fl_Window(300, 200, "Perpustakaan");
-    Fl_Button *btnAdmin = new Fl_Button(80, 50, 140, 40, "Masuk Sebagai Pegawai");
-    Fl_Button *btnPengunjung = new Fl_Button(80, 110, 140, 40, "Masuk Sebagai Pengunjung");
+    Fl_Button *btnAdmin = new Fl_Button(50, 50, 200, 40, "Masuk Sebagai Pegawai");
+    Fl_Button *btnPengunjung = new Fl_Button(50, 110, 200, 40, "Masuk Sebagai Pengunjung");
 
     btnAdmin->callback(showAdmin);
     btnPengunjung->callback(showBukuPengunjung);
