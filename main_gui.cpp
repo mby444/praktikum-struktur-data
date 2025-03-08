@@ -163,6 +163,17 @@ void keluar(Fl_Widget *)
     exit(0);
 }
 
+void showPopup(string message)
+{
+    Fl_Window *win = new Fl_Window(300, 200, "Perpustakaan");
+    Fl_Box *box = new Fl_Box(50, 50, 200, 30, message.c_str());
+    Fl_Button *btn = new Fl_Button(100, 100, 100, 30, "OK");
+
+    btn->callback(kembali, win);
+    win->end();
+    win->show();
+}
+
 // **Tampilan Pengunjung**
 void showBukuPengunjung(Fl_Widget *)
 {
@@ -199,13 +210,7 @@ void showBukuAdmin(Fl_Widget *)
 
     if (head == NULL)
     {
-        Fl_Box *box = new Fl_Box(50, 50, 300, 30, "Data buku masih kosong!");
-        Fl_Button *btnKembali = new Fl_Button(160, 100, 100, 30, "Kembali");
-
-        btnKembali->callback(kembali, winPegawai);
-        box->box(FL_NO_BOX);
-        winPegawai->end();
-        winPegawai->show();
+        showPopup("Data buku masih kosong!");
         return;
     }
 
@@ -229,33 +234,6 @@ void showBukuAdmin(Fl_Widget *)
 
     tampil = head;
     lihatBuku();
-}
-
-// **Menambahkan Buku ke Linked List**
-void tambahBuku(string judul, string penulis, string tahun, string genre)
-{
-    Buku *b = new Buku();
-    b->id = "B" + to_string((head ? stoi(head->prev->id.substr(1)) + 1 : 1));
-    b->judul = judul;
-    b->penulis = penulis;
-    b->tahun = tahun;
-    b->genre = genre;
-    b->tersedia = true;
-
-    if (!head)
-    {
-        head = b;
-        head->next = head;
-        head->prev = head;
-    }
-    else
-    {
-        Buku *tail = head->prev;
-        tail->next = b;
-        b->prev = tail;
-        b->next = head;
-        head->prev = b;
-    }
 }
 
 Buku *lineKeBuku(string line)
@@ -383,9 +361,66 @@ void simpanDanKeluar(Fl_Widget *)
     exit(0);
 }
 
+string tetapkanIdBuku(string tempId)
+{
+    if (head == NULL)
+    {
+        return tempId;
+    }
+
+    Buku *bantu = head;
+    char lastChar;
+
+    do
+    {
+        if (bantu->id == tempId)
+        {
+            lastChar = tempId[tempId.length() - 1];
+            lastChar++;
+
+            tempId[tempId.length() - 1] = lastChar;
+
+            if (lastChar == '9')
+            {
+                tempId += "0";
+            }
+        }
+        bantu = bantu->next;
+    } while (bantu != head);
+
+    return tempId;
+}
+
 string buatIdBuku(string judul, string tahun)
 {
-    return "00000";
+    int firstCharInt = (int)judul[0];
+    int lastCharInt = (int)judul[judul.length() - 1];
+    int yearDigitSum = 0;
+    string firstTwoDigit = to_string(abs(lastCharInt - firstCharInt));
+    string secondAndThirdDigit;
+    string lastDigit = "0";
+    string tempId;
+
+    for (int i = 0; i < tahun.length(); i++)
+    {
+        yearDigitSum += stoi(tahun.substr(i, 1));
+    }
+
+    secondAndThirdDigit = to_string(yearDigitSum);
+
+    if (firstTwoDigit.length() == 1)
+    {
+        firstTwoDigit = "0" + firstTwoDigit;
+    }
+
+    if (secondAndThirdDigit.length() == 1)
+    {
+        secondAndThirdDigit = "0" + secondAndThirdDigit;
+    }
+
+    tempId = firstTwoDigit + secondAndThirdDigit + lastDigit;
+
+    return tetapkanIdBuku(tempId);
 }
 
 Buku *cariBuku(string id)
@@ -404,6 +439,30 @@ Buku *cariBuku(string id)
     return NULL;
 }
 
+void hapusDariLinkedList2(Buku *buku)
+{
+    if (head == tail && head->id == buku->id)
+    {
+        delete head;
+        head = NULL;
+        tail = NULL;
+        return;
+    }
+
+    if (buku == head)
+    {
+        head = buku->next;
+    }
+    else if (buku == tail)
+    {
+        tail = buku->prev;
+    }
+
+    buku->prev->next = buku->next;
+    buku->next->prev = buku->prev;
+    delete buku;
+}
+
 Buku *buatBukuBaru()
 {
     string judul = judulInput->value();
@@ -413,8 +472,7 @@ Buku *buatBukuBaru()
 
     if (judul.empty() || penulis.empty() || tahun.empty() || genre.empty())
     {
-        Fl_Box *box = new Fl_Box(50, 250, 200, 30, "Data tidak boleh kosong!");
-        box->box(FL_NO_BOX);
+        showPopup("Data tidak boleh kosong!");
         return NULL;
     }
 
@@ -446,15 +504,13 @@ void ubah(Fl_Widget *, void *win)
 {
     if (bukuDiubah == NULL)
     {
-        Fl_Box *box = new Fl_Box(50, 50, 200, 30, "Buku tidak ditemukan!");
-        box->box(FL_NO_BOX);
+        showPopup("Buku tidak ditemukan!");
         return;
     }
 
     if (bukuDiubah->judul.empty() || bukuDiubah->penulis.empty() || bukuDiubah->tahun.empty() || bukuDiubah->genre.empty())
     {
-        Fl_Box *box = new Fl_Box(50, 50, 200, 30, "Data tidak boleh kosong!");
-        box->box(FL_NO_BOX);
+        showPopup("Data tidak boleh kosong!");
         return;
     }
 
@@ -467,6 +523,19 @@ void ubah(Fl_Widget *, void *win)
     bukuDiubah->penulis = penulisInput->value();
     bukuDiubah->tahun = tahunInput->value();
     bukuDiubah->genre = genreInput->value();
+    ((Fl_Window *)win)->hide();
+}
+
+void hapus(Fl_Widget *, void *win)
+{
+    if (bukuDiubah == NULL)
+    {
+        showPopup("Buku tidak ditemukan!");
+        return;
+    }
+
+    hapusDariLinkedList2(bukuDiubah);
+
     ((Fl_Window *)win)->hide();
 }
 
@@ -501,9 +570,7 @@ void showUbahBuku(Fl_Widget *, void *win)
 
     if (bukuDiubah == NULL)
     {
-        Fl_Box *box = new Fl_Box(50, 50, 200, 30, "Buku tidak ditemukan!");
-        cout << "Buku tidak ditemukan!" << endl;
-        box->box(FL_NO_BOX);
+        showPopup("Buku tidak ditemukan!");
         return;
     }
 
@@ -533,15 +600,45 @@ void showUbahBuku(Fl_Widget *, void *win)
     ((Fl_Window *)win)->hide();
 }
 
+void showHapusBuku(Fl_Widget *, void *win)
+{
+    Fl_Window *winUbah = new Fl_Window(300, 300, "Hapus Buku");
+    bukuDiubah = cariBuku(idDicariInput->value());
+
+    if (bukuDiubah == NULL)
+    {
+        showPopup("Buku tidak ditemukan!");
+        return;
+    }
+
+    judulBox = new Fl_Box(50, 20, 300, 30);
+    idBox = new Fl_Box(50, 50, 300, 30);
+    penulisBox = new Fl_Box(50, 80, 300, 30);
+    tahunBox = new Fl_Box(50, 110, 300, 30);
+    genreBox = new Fl_Box(50, 140, 300, 30);
+    tersediaBox = new Fl_Box(50, 170, 300, 30);
+
+    Fl_Button *btnUbah = new Fl_Button(50, 250, 100, 30, "Hapus");
+    Fl_Button *btnBatal = new Fl_Button(160, 250, 100, 30, "Batal");
+
+    btnUbah->callback(hapus, winUbah);
+    btnBatal->callback(kembali, winUbah);
+
+    winUbah->end();
+    winUbah->show();
+    ((Fl_Window *)win)->hide();
+
+    tampil = bukuDiubah;
+    lihatBuku();
+}
+
 void showInputIdUbahBuku(Fl_Widget *)
 {
     Fl_Window *winInputId = new Fl_Window(300, 200, "Ubah Buku");
 
     if (head == NULL)
     {
-        Fl_Box *box = new Fl_Box(50, 50, 200, 30, "Data buku masih kosong!");
-        cout << "Data buku masih kosong!" << endl;
-        box->box(FL_NO_BOX);
+        showPopup("Data buku masih kosong!");
         return;
     }
 
@@ -555,13 +652,29 @@ void showInputIdUbahBuku(Fl_Widget *)
     winInputId->show();
 }
 
+void showInputIdHapusBuku(Fl_Widget *)
+{
+    Fl_Window *winInputId = new Fl_Window(300, 200, "Hapus Buku");
+
+    if (head == NULL)
+    {
+        showPopup("Data buku masih kosong!");
+        return;
+    }
+
+    Fl_Box *box = new Fl_Box(50, 50, 200, 30, "Masukkan ID Buku");
+    idDicariInput = new Fl_Input(50, 100, 200, 30);
+    Fl_Button *btnCari = new Fl_Button(50, 150, 100, 30, "Cari");
+
+    btnCari->callback(showHapusBuku, winInputId);
+
+    winInputId->end();
+    winInputId->show();
+}
+
 // **Tampilan Pegawai**
 void showAdmin(Fl_Widget *)
 {
-    // tambahBuku("BUMI MANUSIA", "Pramoedya Ananta Toer", "1980", "Fiksi");
-    // tambahBuku("LASKAR PELANGI", "Andrea Hirata", "2005", "Inspirasi");
-    // tambahBuku("HABIS GELAP TERBITLAH TERANG", "R.A. Kartini", "1922", "Biografi");
-
     Fl_Window *winAdmin = new Fl_Window(300, 400, "Dashboard Admin");
     Fl_Button *btnTambah = new Fl_Button(50, 50, 200, 40, "Tambah Buku");
     Fl_Button *btnLihat = new Fl_Button(50, 100, 200, 40, "Lihat Buku");
@@ -572,6 +685,7 @@ void showAdmin(Fl_Widget *)
     btnTambah->callback(showTambahBuku);
     btnLihat->callback(showBukuAdmin);
     btnUbah->callback(showInputIdUbahBuku);
+    btnHapus->callback(showInputIdHapusBuku);
     btnSimpanDanKeluar->callback(simpanDanKeluar);
     winAdmin->end();
     winAdmin->show();
