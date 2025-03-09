@@ -2,6 +2,7 @@
 #include <string>
 #include <fstream>
 #include <cmath>
+#include <ctime>
 
 #define FILE_DATA "database.txt"
 
@@ -12,7 +13,7 @@ struct Buku
     string id;
     string judul;
     string penulis;
-    string tahun;
+    int tahun;
     string genre;
     bool tersedia;
     Buku *next;
@@ -34,9 +35,9 @@ void outputSelamatDatang()
     cout << "=======================================" << endl;
     cout << "=== Selamat datang di Perpustakaan! ===" << endl;
     cout << "=======================================" << endl;
-    cout << "1. Masuk sebagai pegawai" << endl;
-    cout << "2. Masuk sebagai pengunjung" << endl;
-    cout << "0. Keluar" << endl;
+    cout << "1. Masuk Sebagai Pegawai" << endl;
+    cout << "2. Masuk Sebagai Pengunjung" << endl;
+    cout << "0. Simpan dan Keluar" << endl;
     cout << endl;
 }
 
@@ -49,7 +50,7 @@ void outputDasboardAdmin()
     cout << "2. Tampilkan Buku" << endl;
     cout << "3. Ubah Buku" << endl;
     cout << "4. Hapus Buku" << endl;
-    cout << "0. Simpan dan Keluar" << endl;
+    cout << "0. Kembali" << endl;
     cout << endl;
 }
 
@@ -57,7 +58,7 @@ void outputDaftarBukuAdmin()
 {
     cout << "1. Selanjutnya" << endl;
     cout << "2. Sebelumnya" << endl;
-    cout << "0. Keluar" << endl;
+    cout << "0. Kembali" << endl;
     cout << endl;
 }
 
@@ -66,7 +67,7 @@ void outputDaftarBukuPengunjung()
     cout << "1. Selanjutnya" << endl;
     cout << "2. Sebelumnya" << endl;
     cout << "3. Pinjam" << endl;
-    cout << "0. Keluar" << endl;
+    cout << "0. Kembali" << endl;
     cout << endl;
 }
 
@@ -201,6 +202,26 @@ string inputData(string label = "")
     }
 }
 
+int inputDataNumerik(string label = "")
+{
+    try
+    {
+        string input = inputData(label);
+
+        if (input < "0" || input > "9")
+        {
+            throw "Data harus berupa angka!";
+        }
+
+        return stoi(input);
+    }
+    catch (...)
+    {
+        cout << "Mohon masukkan data berupa angka!" << endl;
+        return inputDataNumerik(label);
+    }
+}
+
 Buku *cariBuku(string id)
 {
     Buku *bantu = head;
@@ -247,11 +268,12 @@ string tetapkanIdBuku(string tempId)
     return tempId;
 }
 
-string buatIdBuku(string &judul, string &tahun)
+string buatIdBuku(string &judul, int &tahunInt)
 {
     int firstCharInt = (int)judul[0];
     int lastCharInt = (int)judul[judul.length() - 1];
     int yearDigitSum = 0;
+    string tahun = to_string(tahunInt);
     string firstTwoDigit = to_string(abs(lastCharInt - firstCharInt));
     string secondAndThirdDigit;
     string lastDigit = "0";
@@ -356,7 +378,7 @@ Buku *lineKeBuku(string line)
             buku->penulis = token;
             break;
         case 3:
-            buku->tahun = token;
+            buku->tahun = stoi(token);
             break;
         case 4:
             buku->genre = token;
@@ -379,7 +401,7 @@ Buku *buatBukuBaru()
 
     buku->judul = inputData("Judul");
     buku->penulis = inputData("Penulis");
-    buku->tahun = inputData("Tahun");
+    buku->tahun = inputDataNumerik("Tahun");
     buku->genre = inputData("Genre");
     buku->id = buatIdBuku(buku->judul, buku->tahun);
     buku->tersedia = true;
@@ -495,7 +517,7 @@ void ubahBuku()
             buku->penulis = inputData("Penulis baru");
             break;
         case 3:
-            buku->tahun = inputData("Tahun baru");
+            buku->tahun = inputDataNumerik("Tahun baru");
             buku->id = buatIdBuku(buku->judul, buku->tahun);
             break;
         case 4:
@@ -635,7 +657,6 @@ void masukSebagaiPegawai()
         hapusBuku();
         break;
     case 0:
-        simpanDanKeluar();
         break;
     default:
         cout << "Opsi " << opsi << " tidak ditemukan!" << endl;
@@ -657,27 +678,30 @@ void masukSebagaiPengunjung()
 void perpustakaan()
 {
     muatDataKeLinkedList();
-    outputSelamatDatang();
+    int role = 0;
 
-    int role = inputOpsi();
-
-    switch (role)
+    do
     {
-    case 1:
-        masukSebagaiPegawai();
-        break;
-    case 2:
-        masukSebagaiPengunjung();
-        break;
-    case 0:
-        cout << "Terima kasih telah mengunjungi perpustakaan!" << endl;
-        break;
-    default:
-        cout << "Opsi " << role << " tidak ditemukan!" << endl;
-        cout << endl;
-        perpustakaan();
-        break;
-    }
+        outputSelamatDatang();
+        role = inputOpsi();
+
+        switch (role)
+        {
+        case 1:
+            masukSebagaiPegawai();
+            break;
+        case 2:
+            masukSebagaiPengunjung();
+            break;
+        case 0:
+            simpanDanKeluar();
+            break;
+        default:
+            cout << "Opsi " << role << " tidak ditemukan!" << endl;
+            cout << endl;
+            break;
+        }
+    } while (role != 0);
 }
 
 int main()
