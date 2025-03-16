@@ -720,6 +720,20 @@ Pinjaman *buatPinjamanBaru(Buku *buku)
 
 /* Fungsi Utama */
 
+void pinjamBuku(Buku *tampil, Pinjaman *pinjaman)
+{
+    if (!tampil->tersedia)
+    {
+        cout << "Buku tidak tersedia!" << endl;
+        return;
+    }
+    pinjaman = buatPinjamanBaru(tampil);
+    enqueuePinjaman(pinjaman);
+    cout << "Permintaan pinjaman telah dibuat!" << endl;
+    lihatPinjaman(pinjaman);
+    cout << "Menunggu persetujuan pegawai" << endl;
+}
+
 void tampilkanBuku(bool sebagaiPegawai = true)
 {
     if (head == NULL)
@@ -753,18 +767,7 @@ void tampilkanBuku(bool sebagaiPegawai = true)
                 cout << "Opsi" << opsi << " tidak ditemukan!" << endl;
                 break;
             }
-            if (!tampil->tersedia)
-            {
-                cout << "Buku tidak tersedia!" << endl;
-                break;
-            }
-            pinjaman = buatPinjamanBaru(tampil);
-            enqueuePinjaman(pinjaman);
-            cout << "Permintaan pinjaman telah dibuat!" << endl;
-            lihatPinjaman(pinjaman);
-            cout << "Menunggu persetujuan pegawai" << endl;
-            // cout << "Log: tampikanBuku() cetakQueue()" << endl;
-            // cetakQueue();
+            pinjamBuku(tampil, pinjaman);
             break;
         case 0:
             if (!sebagaiPegawai)
@@ -933,7 +936,7 @@ void prosesPermintaanPinjaman()
 
             if (buku == NULL || !buku->tersedia)
             {
-                cout << "Permintaan pinjaman dengan ID " << idPinjaman << " ditolak karena buku sudah dipinjam!" << endl;
+                cout << "Permintaan pinjaman dengan ID " << idPinjaman << " ditolak karena buku sudah tidak ada atau dipinjam!" << endl;
                 dequeuePinjaman();
                 break;
             }
