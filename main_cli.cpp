@@ -6,6 +6,8 @@
 
 #define FILE_DATA "database/buku.txt"
 #define FILE_PINJAMAN "database/pinjaman.txt"
+#define FILE_RIWAYAT "database/riwayat.txt"
+#define FILE_PENGEMBALIAN "database/pengembalian.txt"
 
 using namespace std;
 
@@ -24,11 +26,36 @@ struct Pinjaman
     Pinjaman *next;
 };
 
+struct Riwayat
+{
+    string id, judul, nama, nim;
+    time_t tanggal;
+    Riwayat *next;
+    Riwayat *prev;
+};
+
+struct Pengembalian
+{
+    string id, judul, nama, nim;
+    time_t tanggal;
+    Pengembalian *next;
+};
+
 Buku *head = NULL;
 Buku *tail = NULL;
 
 Pinjaman *headPinjaman = NULL;
 Pinjaman *tailPinjaman = NULL;
+
+Riwayat *headRiwayat = NULL;
+Riwayat *tailRiwayat = NULL;
+
+Pengembalian *headPengembalian = NULL;
+
+void logger(string pesan)
+{
+    cout << "Log: " << pesan << endl;
+}
 
 void outputHeaderPerpustakaan()
 {
@@ -57,7 +84,19 @@ void outputDasboardAdmin()
     cout << "2. Tampilkan Buku" << endl;
     cout << "3. Ubah Buku" << endl;
     cout << "4. Hapus Buku" << endl;
-    cout << "5. Permintaan Pinjaman" << endl;
+    cout << "5. Proses Permintaan Pinjaman" << endl;
+    cout << "6. Proses Pengembalian Buku" << endl;
+    cout << "0. Kembali" << endl;
+    cout << endl;
+}
+
+void outputDashboardPengunjung()
+{
+    cout << "=======================================" << endl;
+    cout << "===       Dashboard Pengunjung      ===" << endl;
+    cout << "=======================================" << endl;
+    cout << "1. Daftar Buku" << endl;
+    cout << "2. Riwayat Pinjaman" << endl;
     cout << "0. Kembali" << endl;
     cout << endl;
 }
@@ -77,6 +116,22 @@ void outputDaftarBukuPengunjung()
     cout << "3. Pinjam" << endl;
     cout << "0. Kembali" << endl;
     cout << endl;
+}
+
+void outputDaftarRiwayat()
+{
+    cout << "1. Selanjutnya" << endl;
+    cout << "2. Sebelumnya" << endl;
+    cout << "3. Kembalikan Buku" << endl;
+    cout << "0. Kembali" << endl;
+    cout << endl;
+}
+
+void outputKonfirmasiPengembalianBuku(string judul)
+{
+    cout << "Apakah Anda yakin ingin mengembalikan buku \"" << judul << "\"?" << endl;
+    cout << "1. Ya" << endl;
+    cout << "2. Tidak" << endl;
 }
 
 void outputTambahBuku()
@@ -106,10 +161,24 @@ void outputHeaderPermintaanPinjaman(string nomorPinjaman)
     cout << "=======================================" << endl;
 }
 
+void outputHeaderPengembalian(string nomorPengembalian)
+{
+    cout << "=======================================" << endl;
+    cout << "         Pengembalian Ke-" << nomorPengembalian << "    " << endl;
+    cout << "=======================================" << endl;
+}
+
 void outputMenuPermintaanPinjam()
 {
     cout << "1. Setujui" << endl;
     cout << "2. Tolak" << endl;
+    cout << "0. Kembali" << endl;
+    cout << endl;
+}
+
+void outputMenuPengembalian()
+{
+    cout << "1. Proses" << endl;
     cout << "0. Kembali" << endl;
     cout << endl;
 }
@@ -171,108 +240,6 @@ string fullTanggalString(time_t tanggal)
     // Contoh output: 8 Maret 2025 08:50
 }
 
-void cetakLinkedList()
-{
-    if (head == NULL)
-    {
-        cout << "Data buku masih kosong!" << endl;
-        return;
-    }
-
-    Buku *bantu = head;
-
-    do
-    {
-        cout << "ID: " << bantu->id << endl;
-        cout << "Judul: " << bantu->judul << endl;
-        cout << "Penulis: " << bantu->penulis << endl;
-        cout << "Tahun: " << bantu->tahun << endl;
-        cout << "Genre: " << bantu->genre << endl;
-        cout << "Tersedia: " << (bantu->tersedia ? "Ya" : "Tidak") << endl;
-        cout << endl;
-        bantu = bantu->next;
-    } while (bantu != head);
-
-    cout << "===================================" << endl;
-    bantu = tail;
-
-    do
-    {
-        cout << "ID: " << bantu->id << endl;
-        cout << "Judul: " << bantu->judul << endl;
-        cout << "Penulis: " << bantu->penulis << endl;
-        cout << "Tahun: " << bantu->tahun << endl;
-        cout << "Genre: " << bantu->genre << endl;
-        cout << "Tersedia: " << (bantu->tersedia ? "Ya" : "Tidak") << endl;
-        cout << endl;
-        bantu = bantu->prev;
-    } while (bantu != tail);
-
-    cout << "===================================" << endl;
-
-    cout << "(Head)" << endl;
-    cout << "ID: " << head->id << endl;
-    cout << "Judul: " << head->judul << endl;
-    cout << "Penulis: " << head->penulis << endl;
-    cout << "Tahun: " << head->tahun << endl;
-    cout << "Genre: " << head->genre << endl;
-    cout << "Tersedia: " << (head->tersedia ? "Ya" : "Tidak") << endl;
-    cout << endl;
-
-    cout << "===================================" << endl;
-
-    cout << "(Tail)" << endl;
-    cout << "ID: " << tail->id << endl;
-    cout << "Judul: " << tail->judul << endl;
-    cout << "Penulis: " << tail->penulis << endl;
-    cout << "Tahun: " << tail->tahun << endl;
-    cout << "Genre: " << tail->genre << endl;
-    cout << "Tersedia: " << (tail->tersedia ? "Ya" : "Tidak") << endl;
-    cout << endl;
-}
-
-void cetakQueue()
-{
-    if (headPinjaman == NULL)
-    {
-        cout << "Data pinjaman masih kosong!" << endl;
-        return;
-    }
-
-    Pinjaman *bantu = headPinjaman;
-
-    do
-    {
-        cout << "ID: " << bantu->id << endl;
-        cout << "Judul: " << bantu->judul << endl;
-        cout << "Nama: " << bantu->nama << endl;
-        cout << "NIM: " << bantu->nim << endl;
-        cout << "Tanggal: " << bantu->tanggal << endl;
-        cout << endl;
-        bantu = bantu->next;
-    } while (bantu != NULL);
-
-    cout << "===================================" << endl;
-
-    cout << "(Head)" << endl;
-    cout << "ID: " << headPinjaman->id << endl;
-    cout << "Judul: " << headPinjaman->judul << endl;
-    cout << "Nama: " << headPinjaman->nama << endl;
-    cout << "NIM: " << headPinjaman->nim << endl;
-    cout << "Tanggal: " << headPinjaman->tanggal << endl;
-    cout << endl;
-
-    cout << "===================================" << endl;
-
-    cout << "(Tail)" << endl;
-    cout << "ID: " << tailPinjaman->id << endl;
-    cout << "Judul: " << tailPinjaman->judul << endl;
-    cout << "Nama: " << tailPinjaman->nama << endl;
-    cout << "NIM: " << tailPinjaman->nim << endl;
-    cout << "Tanggal: " << tailPinjaman->tanggal << endl;
-    cout << endl;
-}
-
 int indexHurufTerakhir(string str)
 {
     for (int i = str.length() - 1; i >= 0; i--)
@@ -312,6 +279,18 @@ void lihatBuku(Buku *buku)
     cout << endl;
 }
 
+void lihatRiwayat(Riwayat *riwayat)
+{
+    cout << "-----------------------------------" << endl;
+    cout << "Judul: " << riwayat->judul << endl;
+    cout << "ID: " << riwayat->id << endl;
+    cout << "Nama: " << riwayat->nama << endl;
+    cout << "NIM: " << riwayat->nim << endl;
+    cout << "Tanggal: " << fullTanggalString(riwayat->tanggal) << endl;
+    cout << "-----------------------------------" << endl;
+    cout << endl;
+}
+
 void lihatPinjaman(Pinjaman *pinjaman)
 {
     cout << "-----------------------------------" << endl;
@@ -324,11 +303,45 @@ void lihatPinjaman(Pinjaman *pinjaman)
     cout << endl;
 }
 
+void lihatPengembalian(Pengembalian *pengembalian)
+{
+    cout << "-----------------------------------" << endl;
+    cout << "Judul: " << pengembalian->judul << endl;
+    cout << "ID: " << pengembalian->id << endl;
+    cout << "Nama: " << pengembalian->nama << endl;
+    cout << "NIM: " << pengembalian->nim << endl;
+    cout << "Tanggal: " << fullTanggalString(pengembalian->tanggal) << endl;
+    cout << "-----------------------------------" << endl;
+    cout << endl;
+}
+
 string nomorPinjaman(string idPinjaman)
 {
     int iht = indexHurufTerakhir(idPinjaman);
     int len = idPinjaman.length();
     string nomor = idPinjaman.substr(iht + 1, len - (iht + 1));
+    return nomor;
+}
+
+string nomorPengembalian()
+{
+    int jumlahNode = 0;
+    string nomor;
+    Pengembalian *bantu = headPengembalian;
+
+    while (bantu != NULL)
+    {
+        jumlahNode++;
+        bantu = bantu->next;
+    }
+
+    nomor = to_string(jumlahNode);
+
+    if (nomor.size() == 1)
+    {
+        nomor = "0" + nomor;
+    }
+
     return nomor;
 }
 
@@ -537,11 +550,9 @@ void tambahKeLinkedList(Buku *buku)
     }
 }
 
-void hapusDariLinkedList(string id)
+void hapusDariLinkedList(Buku *buku)
 {
-    Buku *bantu = head;
-
-    if (head == tail && head->id == id)
+    if (head == tail && head->id == buku->id)
     {
         delete head;
         head = NULL;
@@ -549,26 +560,59 @@ void hapusDariLinkedList(string id)
         return;
     }
 
-    do
+    if (buku == head)
     {
-        if (bantu->id == id)
-        {
-            if (bantu == head)
-            {
-                head = bantu->next;
-            }
-            else if (bantu == tail)
-            {
-                tail = bantu->prev;
-            }
+        head = buku->next;
+    }
+    else if (buku == tail)
+    {
+        tail = buku->prev;
+    }
 
-            bantu->prev->next = bantu->next;
-            bantu->next->prev = bantu->prev;
-            delete bantu;
-            break;
-        }
-        bantu = bantu->next;
-    } while (bantu != head);
+    buku->prev->next = buku->next;
+    buku->next->prev = buku->prev;
+    delete buku;
+}
+
+void tambahKeRiwayat(Riwayat *riwayat)
+{
+    if (headRiwayat == NULL)
+    {
+        headRiwayat = riwayat;
+        tailRiwayat = riwayat;
+    }
+    else
+    {
+        riwayat->next = headRiwayat;
+        riwayat->prev = tailRiwayat;
+        tailRiwayat->next = riwayat;
+        headRiwayat->prev = riwayat;
+        tailRiwayat = riwayat;
+    }
+}
+
+void hapusDariRiwayat(Riwayat *riwayat)
+{
+    if (headRiwayat == tailRiwayat && headRiwayat->id == riwayat->id)
+    {
+        delete headRiwayat;
+        headRiwayat = NULL;
+        tailRiwayat = NULL;
+        return;
+    }
+
+    if (riwayat == headRiwayat)
+    {
+        headRiwayat = riwayat->next;
+    }
+    else if (riwayat == tailRiwayat)
+    {
+        tailRiwayat = riwayat->prev;
+    }
+
+    riwayat->prev->next = riwayat->next;
+    riwayat->next->prev = riwayat->prev;
+    delete riwayat;
 }
 
 void enqueuePinjaman(Pinjaman *pinjaman)
@@ -603,6 +647,31 @@ void dequeuePinjaman()
 
     Pinjaman *hapus = headPinjaman;
     headPinjaman = headPinjaman->next;
+    delete hapus;
+}
+
+void pushPengembalian(Pengembalian *pengembalian)
+{
+    if (headPengembalian == NULL)
+    {
+        headPengembalian = pengembalian;
+    }
+    else
+    {
+        pengembalian->next = headPengembalian;
+        headPengembalian = pengembalian;
+    }
+}
+
+void popPengembalian()
+{
+    if (headPengembalian == NULL)
+    {
+        return;
+    }
+
+    Pengembalian *hapus = headPengembalian;
+    headPengembalian = headPengembalian->next;
     delete hapus;
 }
 
@@ -649,7 +718,7 @@ Buku *lineKeBuku(string line)
     return buku;
 }
 
-Pinjaman *lineKeQueue(string line)
+Pinjaman *lineKePinjaman(string line)
 {
     Pinjaman *pinjaman = new Pinjaman;
     string delimiter = "|";
@@ -686,6 +755,98 @@ Pinjaman *lineKeQueue(string line)
     pinjaman->next = NULL;
 
     return pinjaman;
+}
+
+Riwayat *lineKeRiwayat(string line)
+{
+    Riwayat *riwayat = new Riwayat;
+    string delimiter = "|";
+    int delimiterIndex = 0;
+    int i = 0;
+    string token;
+
+    // Mengubah satu baris data menjadi objek riwayat
+    while (line.find(delimiter) != string::npos)
+    {
+        delimiterIndex = line.find(delimiter);
+        token = line.substr(0, delimiterIndex);
+
+        switch (i)
+        {
+        case 0:
+            riwayat->id = token;
+            break;
+        case 1:
+            riwayat->judul = token;
+            break;
+        case 2:
+            riwayat->nama = token;
+            break;
+        case 3:
+            riwayat->nim = token;
+            break;
+        }
+        line.erase(0, delimiterIndex + 1);
+        i++;
+    }
+
+    riwayat->tanggal = stoi(line);
+    riwayat->next = riwayat;
+    riwayat->prev = riwayat;
+
+    return riwayat;
+}
+
+Pengembalian *lineKePengembalian(string line)
+{
+    Pengembalian *pengembalian = new Pengembalian;
+    string delimiter = "|";
+    int delimiterIndex = 0;
+    int i = 0;
+    string token;
+
+    // Mengubah satu baris data menjadi objek pengembalian
+    while (line.find(delimiter) != string::npos)
+    {
+        delimiterIndex = line.find(delimiter);
+        token = line.substr(0, delimiterIndex);
+
+        switch (i)
+        {
+        case 0:
+            pengembalian->id = token;
+            break;
+        case 1:
+            pengembalian->judul = token;
+            break;
+        case 2:
+            pengembalian->nama = token;
+            break;
+        case 3:
+            pengembalian->nim = token;
+            break;
+        }
+        line.erase(0, delimiterIndex + 1);
+        i++;
+    }
+
+    pengembalian->tanggal = stoi(line);
+    pengembalian->next = NULL;
+
+    return pengembalian;
+}
+
+Pengembalian *riwayatKePengembalian(Riwayat *riwayat)
+{
+    Pengembalian *pengembalianBaru = new Pengembalian;
+    pengembalianBaru->id = riwayat->id;
+    pengembalianBaru->judul = riwayat->judul;
+    pengembalianBaru->nama = riwayat->nama;
+    pengembalianBaru->nim = riwayat->nim;
+    pengembalianBaru->tanggal = riwayat->tanggal;
+    pengembalianBaru->next = NULL;
+
+    return pengembalianBaru;
 }
 
 Buku *buatBukuBaru()
@@ -734,6 +895,37 @@ void pinjamBuku(Buku *tampil, Pinjaman *pinjaman)
     cout << "Menunggu persetujuan pegawai" << endl;
 }
 
+void kembalikanBuku(Riwayat **riwayatPtr)
+{
+    Riwayat *riwayat = *riwayatPtr;
+    string judul = riwayat->judul;
+
+    outputKonfirmasiPengembalianBuku(judul);
+
+    string konfirmasi = inputData();
+    Pengembalian *pengembalian;
+
+    if (konfirmasi == "2")
+    {
+        cout << "Buku \"" + judul + "\" tidak jadi dikembalikan" << endl;
+        return;
+    }
+
+    if (konfirmasi != "1")
+    {
+        cout << "Opsi tidak ditemukan!" << endl;
+        return;
+    }
+
+    pengembalian = riwayatKePengembalian(riwayat);
+    pushPengembalian(pengembalian);
+
+    *riwayatPtr = riwayat->next;
+    hapusDariRiwayat(riwayat);
+
+    cout << "Buku \"" + judul + "\" telah dikembalikan!" << endl;
+}
+
 void tampilkanBuku(bool sebagaiPegawai = true)
 {
     if (head == NULL)
@@ -770,16 +962,58 @@ void tampilkanBuku(bool sebagaiPegawai = true)
             pinjamBuku(tampil, pinjaman);
             break;
         case 0:
-            if (!sebagaiPegawai)
-            {
-                cout << "Terima kasih telah mengunjungi perpustakaan!" << endl;
-            }
             break;
 
         default:
             cout << "Opsi" << opsi << " tidak ditemukan!" << endl;
             break;
         }
+    } while (opsi != 0);
+}
+
+void tampilkanRiwayat()
+{
+    if (headRiwayat == NULL)
+    {
+        cout << "Riwayat pinjaman masih kosong!" << endl;
+        return;
+    }
+
+    Riwayat *tampil = headRiwayat;
+    int opsi;
+
+    do
+    {
+        outputHeaderPerpustakaan();
+        lihatRiwayat(tampil);
+        outputDaftarRiwayat();
+
+        opsi = inputOpsi();
+
+        switch (opsi)
+        {
+        case 1:
+            tampil = tampil->next;
+            break;
+        case 2:
+            tampil = tampil->prev;
+            break;
+        case 3:
+            kembalikanBuku(&tampil);
+            break;
+        case 0:
+            break;
+        default:
+            cout << "Opsi " << opsi << " tidak ditemukan!" << endl;
+            break;
+        }
+
+        if (headRiwayat == NULL)
+        {
+            cout << "Riwayat pinjaman sudah kosong!" << endl;
+            break;
+        }
+
     } while (opsi != 0);
 }
 
@@ -816,6 +1050,12 @@ void ubahBuku()
     if (buku == NULL)
     {
         cout << "Buku dengan ID " << idDicari << " tidak ditemukan!" << endl;
+        return;
+    }
+
+    if (buku->tersedia == false)
+    {
+        cout << "Buku tidak bisa diubah karena sedang dipinjam!" << endl;
         return;
     }
 
@@ -872,6 +1112,12 @@ void hapusBuku()
         return;
     }
 
+    if (buku->tersedia == false)
+    {
+        cout << "Buku tidak bisa dihapus karena sedang dipinjam!" << endl;
+        return;
+    }
+
     lihatBuku(buku);
 
     string konfirmasiInput = inputData("Apakah Anda yakin ingin menghapus buku ini? (y/N)");
@@ -879,13 +1125,27 @@ void hapusBuku()
     if (konfirmasiInput == "y" || konfirmasiInput == "Y")
     {
         string idDihapus = buku->id;
-        hapusDariLinkedList(idDicari);
+        hapusDariLinkedList(buku);
         cout << "Buku dengan ID " << idDihapus << " berhasil dihapus!" << endl;
     }
     else
     {
         cout << "Buku tidak jadi dihapus!" << endl;
     }
+}
+
+void salinPinjamanKeRiwayat()
+{
+    Riwayat *riwayatBaru = new Riwayat;
+    riwayatBaru->id = headPinjaman->id;
+    riwayatBaru->judul = headPinjaman->judul;
+    riwayatBaru->nama = headPinjaman->nama;
+    riwayatBaru->nim = headPinjaman->nim;
+    riwayatBaru->tanggal = headPinjaman->tanggal;
+    riwayatBaru->next = riwayatBaru;
+    riwayatBaru->prev = riwayatBaru;
+
+    tambahKeRiwayat(riwayatBaru);
 }
 
 bool tandaiBukuDipinjam(string idPinjam)
@@ -899,6 +1159,26 @@ bool tandaiBukuDipinjam(string idPinjam)
         if (bantu->id == id)
         {
             bantu->tersedia = false;
+            found = true;
+            break;
+        }
+        bantu = bantu->next;
+    } while (bantu != head);
+
+    return found;
+}
+
+bool tandaiBukuDikembalikan(string idPengembalian)
+{
+    Buku *bantu = head;
+    string id = idPengembalian.substr(0, indexHurufPertama(idPengembalian));
+    bool found = false;
+
+    do
+    {
+        if (bantu->id == id)
+        {
+            bantu->tersedia = true;
             found = true;
             break;
         }
@@ -941,6 +1221,7 @@ void prosesPermintaanPinjaman()
                 break;
             }
 
+            salinPinjamanKeRiwayat();
             tandaiBukuDipinjam(idPinjaman);
             dequeuePinjaman();
             cout << "Permintaan pinjaman dengan ID " << idPinjaman << " berhasil disetujui!" << endl;
@@ -959,6 +1240,50 @@ void prosesPermintaanPinjaman()
         if (headPinjaman == NULL)
         {
             cout << "Data pinjaman sudah kosong!" << endl;
+            break;
+        }
+    } while (opsi != 0);
+}
+
+void prosesPengembalian()
+{
+    if (headPengembalian == NULL)
+    {
+        cout << "Data pengembalian buku masih kosong!" << endl;
+        return;
+    }
+
+    int opsi = 0;
+    bool bukuDitandai;
+    string idPengembalian, judulPengembalian;
+    Pengembalian *pengembalian;
+
+    do
+    {
+        idPengembalian = headPengembalian->id;
+        judulPengembalian = headPengembalian->judul;
+        outputHeaderPengembalian(nomorPengembalian());
+        lihatPengembalian(headPengembalian);
+        outputMenuPengembalian();
+        opsi = inputOpsi();
+
+        switch (opsi)
+        {
+        case 1:
+            popPengembalian();
+            tandaiBukuDikembalikan(idPengembalian);
+            cout << "Buku \"" + judulPengembalian + "\" telah dikembalikan!" << endl;
+            break;
+        case 0:
+            break;
+        default:
+            cout << "Opsi " << opsi << " tidak ditemukan!" << endl;
+            break;
+        }
+
+        if (headPengembalian == NULL)
+        {
+            cout << "Data pengembalian buku sudah kosong!" << endl;
             break;
         }
     } while (opsi != 0);
@@ -995,9 +1320,44 @@ void muatDataPinjamanKeQueue()
     string line;
     while (getline(file, line))
     {
-        Pinjaman *pinjaman = lineKeQueue(line);
-        lihatPinjaman(pinjaman);
+        Pinjaman *pinjaman = lineKePinjaman(line);
         enqueuePinjaman(pinjaman);
+    }
+}
+
+void muatDataRiwayatKeLinkedList()
+{
+    ifstream file(FILE_RIWAYAT);
+
+    if (!file.is_open())
+    {
+        return;
+    }
+
+    string line;
+
+    // Tambah semua data riwayat ke linked list
+    while (getline(file, line))
+    {
+        Riwayat *riwayat = lineKeRiwayat(line);
+        tambahKeRiwayat(riwayat);
+    }
+}
+
+void muatDataPengembalianKeStack()
+{
+    ifstream file(FILE_PENGEMBALIAN);
+
+    if (!file.is_open())
+    {
+        return;
+    }
+
+    string line;
+    while (getline(file, line))
+    {
+        Pengembalian *pengembalian = lineKePengembalian(line);
+        pushPengembalian(pengembalian);
     }
 }
 
@@ -1040,6 +1400,45 @@ void kosongkanQueue()
     tailPinjaman = NULL;
 }
 
+void kosongkanRiwayat()
+{
+    if (headRiwayat == NULL)
+    {
+        return;
+    }
+
+    Riwayat *bantu = headRiwayat;
+
+    do
+    {
+        Riwayat *hapus = bantu;
+        bantu = bantu->next;
+        delete hapus;
+    } while (bantu != headRiwayat);
+
+    headRiwayat = NULL;
+    tailRiwayat = NULL;
+}
+
+void kosongkanPengembalian()
+{
+    if (headPengembalian == NULL)
+    {
+        return;
+    }
+
+    Pengembalian *bantu = headPengembalian;
+
+    do
+    {
+        Pengembalian *hapus = bantu;
+        bantu = bantu->next;
+        delete hapus;
+    } while (bantu != NULL);
+
+    headPengembalian = NULL;
+}
+
 void simpanDataBukuKeFile()
 {
     ofstream file(FILE_DATA);
@@ -1080,14 +1479,65 @@ void simpanDataPinjamanKeFile()
     file.close();
 }
 
+void simpanDataRiwayatKeFile()
+{
+    ofstream file(FILE_RIWAYAT);
+
+    if (headRiwayat == NULL)
+    {
+        return;
+    }
+
+    Riwayat *bantu = headRiwayat;
+
+    do
+    {
+        file << bantu->id << "|" << bantu->judul << "|" << bantu->nama << "|" << bantu->nim << "|" << bantu->tanggal << endl;
+        bantu = bantu->next;
+    } while (bantu != headRiwayat);
+
+    file.close();
+}
+
+void simpanDataPengembalianKeFile()
+{
+    ofstream file(FILE_PENGEMBALIAN);
+    string line, teks;
+
+    if (headPengembalian == NULL)
+    {
+        return;
+    }
+
+    Pengembalian *bantu = headPengembalian;
+
+    do
+    {
+        line = bantu->id + "|" + bantu->judul + "|" + bantu->nama + "|" + bantu->nim + "|" + to_string(bantu->tanggal) + "\n";
+        teks = line + teks;
+        bantu = bantu->next;
+    } while (bantu != NULL);
+
+    file << teks;
+    file.close();
+}
+
 void simpanDanKeluar()
 {
     cout << "Menyimpan data..." << endl;
     simpanDataBukuKeFile();
+    cout << "Berhasil menyimpan data buku!" << endl;
     simpanDataPinjamanKeFile();
+    cout << "Berhasil menyimpan data pinjaman!" << endl;
+    simpanDataRiwayatKeFile();
+    cout << "Berhasil menyimpan data riwayat!" << endl;
+    simpanDataPengembalianKeFile();
+    cout << "Berhasil menyimpan data pengembalian!" << endl;
     cout << "Data berhasil disimpan!" << endl;
     kosongkanLinkedList();
     kosongkanQueue();
+    kosongkanRiwayat();
+    kosongkanPengembalian();
     cout << "Terima kasih telah mengunjungi perpustakaan!" << endl;
 }
 
@@ -1114,6 +1564,9 @@ void masukSebagaiPegawai()
     case 5:
         prosesPermintaanPinjaman();
         break;
+    case 6:
+        prosesPengembalian();
+        break;
     case 0:
         break;
     default:
@@ -1130,13 +1583,39 @@ void masukSebagaiPegawai()
 
 void masukSebagaiPengunjung()
 {
-    tampilkanBuku(false);
+    outputDashboardPengunjung();
+
+    int opsi = inputOpsi();
+
+    switch (opsi)
+    {
+    case 1:
+        tampilkanBuku(false);
+        break;
+    case 2:
+        tampilkanRiwayat();
+        break;
+    case 0:
+        break;
+    default:
+        cout << "Opsi " << opsi << " tidak ditemukan!" << endl;
+        cout << endl;
+        break;
+    }
+
+    if (opsi != 0)
+    {
+        masukSebagaiPengunjung();
+    }
 }
 
 void perpustakaan()
 {
     muatDataBukuKeLinkedList();
     muatDataPinjamanKeQueue();
+    muatDataRiwayatKeLinkedList();
+    muatDataPengembalianKeStack();
+
     int role = 0;
 
     do
