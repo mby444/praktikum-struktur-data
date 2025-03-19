@@ -1,1 +1,0 @@
-/e/msys64/mingw64.exe g++ main_gui.cpp `fltk-config --cxxflags --ldflags --use-images` -o main_gui.exe

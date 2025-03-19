@@ -711,7 +711,7 @@ Buku *lineKeBuku(string line)
         i++;
     }
 
-    buku->tersedia = line == "1";
+    buku->tersedia = line.substr(0, 1) == "1";
     buku->next = buku;
     buku->prev = buku;
 
